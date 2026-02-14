@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#00e0ff">
+    <meta name="description" content="نظام إدارة تأجير السيارات - تصميم خرافي مودرن">
+    
+    <title>نظام تأجير السيارات</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Main Style -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- ========== HEADER ========== -->
+        <header class="header glass">
+            <div class="header-left">
+                <div class="logo">
+                    <i class="fas fa-car"></i>
+                    <h1>نظام إدارة التأجير</h1>
+                </div>
+                <div class="date-time" id="currentDateTime">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="dateTimeDisplay"></span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-primary" onclick="showAddCarModal()">
+                    <i class="fas fa-plus-circle"></i>
+                    إضافة سيارة
+                </button>
+                <button class="btn btn-success" onclick="showRentCarModal()">
+                    <i class="fas fa-calendar-plus"></i>
+                    تأجير
+                </button>
+                <button class="btn btn-info" onclick="showAddTransactionModal()">
+                    <i class="fas fa-money-bill-wave"></i>
+                    حركة مالية
+                </button>
+            </div>
+        </header>
+
+        <!-- ========== STATS CARDS ========== -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <!-- السيارات المتوفرة -->
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(0, 224, 255, 0.1);">
+                        <i class="fas fa-car" style="color: #00e0ff;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>السيارات المتوفرة</h3>
+                        <p class="stat-number" id="availableCarsCount">0</p>
+                        <p class="stat-desc">
+                            <i class="fas fa-check-circle"></i>
+                            جاهزة للتأجير
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- السيارات المؤجرة -->
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(0, 230, 160, 0.1);">
+                        <i class="fas fa-car-side" style="color: #00e6a0;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>السيارات المؤجرة</h3>
+                        <p class="stat-number" id="rentedCarsCount">0</p>
+                        <p class="stat-desc">
+                            <i class="fas fa-clock"></i>
+                            مستأجرة حالياً
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- إجمالي المدخولات -->
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(255, 159, 28, 0.1);">
+                        <i class="fas fa-money-bill-wave" style="color: #ff9f1c;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>إجمالي المدخولات</h3>
+                        <p class="stat-number" id="totalIncome">0 <span>ل.س</span></p>
+                        <p class="stat-desc">
+                            <i class="fas fa-arrow-down"></i>
+                            إجمالي المقبوضات
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- صافي الأرباح -->
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(178, 0, 255, 0.1);">
+                        <i class="fas fa-chart-line" style="color: #b200ff;"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>صافي الأرباح</h3>
+                        <p class="stat-number" id="netProfit">0 <span>ل.س</span></p>
+                        <p class="stat-desc">
+                            <i class="fas fa-trending-up"></i>
+                            الإيرادات - المصروفات
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== MAIN CONTENT ========== -->
+        <main class="main-content">
+            <!-- السيارات المتوفرة -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>
+                        <i class="fas fa-car"></i>
+                        السيارات المتوفرة
+                    </h2>
+                    <div class="section-actions">
+                        <button class="btn btn-sm btn-outline" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i>
+                            تحديث
+                        </button>
+                    </div>
+                </div>
+                <div class="cars-grid" id="availableCarsList">
+                    <div class="loading">
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                        <p>جاري تحميل السيارات...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- السيارات المؤجرة -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>
+                        <i class="fas fa-calendar-check"></i>
+                        السيارات المؤجرة
+                    </h2>
+                    <div class="section-actions">
+                        <button class="btn btn-sm btn-warning" onclick="showAllRentals()">
+                            <i class="fas fa-list"></i>
+                            عرض الكل
+                        </button>
+                    </div>
+                </div>
+                <div class="rentals-grid" id="rentedCarsList">
+                    <div class="loading">
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                        <p>جاري تحميل التأجيرات...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- التقارير المالية -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>
+                        <i class="fas fa-chart-bar"></i>
+                        التقارير المالية
+                    </h2>
+                    <div class="section-actions">
+                        <button class="btn btn-sm btn-info" onclick="showCarFinancialModal()" style="margin-left: 12px;">
+                            <i class="fas fa-car-side"></i>
+                            تقرير مالي لسيارة
+                        </button>
+                        <button class="btn btn-sm btn-success" onclick="printAllCarsInvoice()" style="margin-left: 12px;">
+                            <i class="fas fa-print"></i>
+                            طباعة فاتورة شاملة
+                        </button>
+                        <div class="date-filter glass-light" style="display: flex; gap: 8px; padding: 8px;">
+                            <input type="date" id="startDate" class="form-control" style="width: auto;">
+                            <span style="color: var(--text-secondary);">إلى</span>
+                            <input type="date" id="endDate" class="form-control" style="width: auto;">
+                            <button class="btn btn-sm btn-primary" onclick="applyDateFilter()">
+                                <i class="fas fa-filter"></i>
+                                تطبيق
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="charts-section">
+                    <div class="chart-container glass-light">
+                        <canvas id="financialChart"></canvas>
+                    </div>
+                    
+                    <div class="financial-summary">
+                        <div class="summary-card income">
+                            <h3><i class="fas fa-arrow-down"></i> إجمالي المدخولات</h3>
+                            <p class="amount" id="filteredIncome">0 ل.س</p>
+                        </div>
+                        <div class="summary-card expense">
+                            <h3><i class="fas fa-arrow-up"></i> إجمالي المدفوعات</h3>
+                            <p class="amount" id="filteredExpenses">0 ل.س</p>
+                        </div>
+                        <div class="summary-card profit">
+                            <h3><i class="fas fa-chart-line"></i> صافي الأرباح</h3>
+                            <p class="amount" id="filteredProfit">0 ل.س</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- آخر الحركات المالية -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>
+                        <i class="fas fa-exchange-alt"></i>
+                        آخر الحركات المالية
+                    </h2>
+                    <button class="btn btn-sm btn-info" onclick="showAllTransactions()">
+                        <i class="fas fa-history"></i>
+                        كشف الحساب الكامل
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>التاريخ</th>
+                                <th>النوع</th>
+                                <th>المبلغ</th>
+                                <th>السيارة</th>
+                                <th>العميل</th>
+                                <th>الوصف</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentTransactions">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 40px;">
+                                    <i class="fas fa-circle-notch fa-spin" style="font-size: 2rem; color: #00e0ff;"></i>
+                                    <p style="margin-top: 15px; color: #94a3b8;">جاري تحميل الحركات المالية...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <!-- ========== FOOTER ========== -->
+        <footer class="footer">
+            <p>© 2026 نظام تأجير السيارات - جميع الحقوق محفوظة</p>
+            <p class="system-info">
+                <i class="fas fa-bolt"></i>
+                الإصدار 5.0.0
+                <i class="fas fa-gem"></i>
+            </p>
+        </footer>
+    </div>
+
+    <!-- ========== MODAL: إضافة سيارة ========== -->
+    <div id="addCarModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-plus-circle"></i>
+                    إضافة سيارة جديدة
+                </h3>
+                <button class="close-btn" onclick="closeModal('addCarModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addCarForm" onsubmit="submitCarForm(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-car"></i>
+                                اسم السيارة
+                            </label>
+                            <input type="text" id="newCarName" class="form-control" required placeholder="مثال: تويوتا كورولا 2024">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-tag"></i>
+                                رقم اللوحة
+                            </label>
+                            <input type="text" id="newCarPlate" class="form-control" required placeholder="ABC-123">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-car-side"></i>
+                                نوع السيارة
+                            </label>
+                            <select id="newCarType" class="form-control" required>
+                                <option value="">اختر النوع</option>
+                                <option value="سيدان">🚗 سيدان</option>
+                                <option value="دفع رباعي">🛻 دفع رباعي</option>
+                                <option value="فان">🚐 فان</option>
+                                <option value="نقل">🚛 نقل</option>
+                                <option value="رياضية">🏎️ رياضية</option>
+                                <option value="فاخرة">💎 فاخرة</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-palette"></i>
+                                اللون
+                            </label>
+                            <input type="text" id="newCarColor" class="form-control" required placeholder="أبيض، أسود، فضي...">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-calendar"></i>
+                                سنة الصنع
+                            </label>
+                            <input type="number" id="newCarYear" class="form-control" required min="2000" max="2026" placeholder="2024">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-tachometer-alt"></i>
+                                العداد (كم)
+                            </label>
+                            <input type="number" id="newCarMileage" class="form-control" required min="0" placeholder="15000">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-cogs"></i>
+                            المميزات (افصل بفاصلة)
+                        </label>
+                        <input type="text" id="newCarFeatures" class="form-control" placeholder="مكيف، أوتوماتيك، بلوتوث">
+                    </div>
+                    
+                    <div class="form-actions" style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addCarModal')">
+                            <i class="fas fa-times"></i>
+                            إلغاء
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i>
+                            إضافة السيارة
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL: تأجير سيارة ========== -->
+    <div id="rentCarModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-calendar-plus"></i>
+                    تأجير سيارة جديدة
+                </h3>
+                <button class="close-btn" onclick="closeModal('rentCarModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="rentCarForm" onsubmit="submitRentalForm(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-car"></i>
+                                اختيار السيارة
+                            </label>
+                            <select id="rentCarSelect" class="form-control" required onchange="updateRentalPrice()">
+                                <option value="">اختر سيارة</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-user"></i>
+                                اسم العميل
+                            </label>
+                            <input type="text" id="customerName" class="form-control" required placeholder="أدخل اسم العميل">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-phone"></i>
+                                رقم الهاتف
+                            </label>
+                            <input type="tel" id="customerPhone" class="form-control" required placeholder="09XXXXXXXX">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-clock"></i>
+                                نوع التأجير
+                            </label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="rentalType" value="ساعات" checked onchange="toggleRentalType()">
+                                    <span>⏰ تأجير بالساعات</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="rentalType" value="أيام" onchange="toggleRentalType()">
+                                    <span>📅 تأجير بالأيام</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- قسم التأجير بالساعات -->
+                    <div id="hoursRentalSection">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>
+                                    <i class="fas fa-calendar-alt"></i>
+                                    تاريخ ووقت البدء
+                                </label>
+                                <input type="datetime-local" id="startDateTime" class="form-control" required onchange="calculateHoursPrice()">
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <i class="fas fa-calendar-alt"></i>
+                                    تاريخ ووقت الانتهاء
+                                </label>
+                                <input type="datetime-local" id="endDateTime" class="form-control" required onchange="calculateHoursPrice()">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- قسم التأجير بالأيام (مخفي افتراضياً) -->
+                    <div id="daysRentalSection" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>
+                                    <i class="fas fa-calendar-alt"></i>
+                                    تاريخ البدء
+                                </label>
+                                <input type="date" id="startDateInput" class="form-control" onchange="calculateDaysPrice()">
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <i class="fas fa-calendar-alt"></i>
+                                    تاريخ الانتهاء
+                                </label>
+                                <input type="date" id="endDateInput" class="form-control" onchange="calculateDaysPrice()">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>
+                                    <i class="fas fa-calculator"></i>
+                                    عدد الأيام
+                                </label>
+                                <input type="number" id="daysCount" class="form-control" min="1" value="1" onchange="calculateDaysPrice()">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- ملخص السعر -->
+                    <div class="price-summary">
+                        <h4>
+                            <i class="fas fa-calculator"></i>
+                            ملخص السعر
+                        </h4>
+                        <div class="price-details">
+                            <div class="price-row" id="hoursDisplayRow" style="display: none;">
+                                <span>عدد الساعات:</span>
+                                <span id="hoursDisplay" style="color: #00e6a0; font-weight: bold;">-</span>
+                            </div>
+                            <div class="price-row">
+                                <span>إجمالي المبلغ:</span>
+                                <input type="number" id="totalAmountInput" class="form-control" required min="1" placeholder="المبلغ" style="width: 150px;" onchange="updateRemainingAmount()">
+                            </div>
+                            <div class="price-row">
+                                <span>المبلغ المدفوع:</span>
+                                <input type="number" id="paidUpfront" class="form-control" value="0" min="0" onchange="updateRemainingAmount()" style="width: 150px;">
+                            </div>
+                            <div class="price-row">
+                                <span>المبلغ المتبقي:</span>
+                                <span id="remainingAmount" style="color: #00e0ff; font-size: 1.2rem;">0 ل.س</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-sticky-note"></i>
+                            ملاحظات
+                        </label>
+                        <textarea id="rentalNotes" class="form-control" rows="3" placeholder="أي ملاحظات إضافية..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions" style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('rentCarModal')">
+                            <i class="fas fa-times"></i>
+                            إلغاء
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i>
+                            تأكيد التأجير
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL: إضافة حركة مالية ========== -->
+    <div id="addTransactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-money-bill-wave"></i>
+                    إضافة حركة مالية
+                </h3>
+                <button class="close-btn" onclick="closeModal('addTransactionModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addTransactionForm" onsubmit="submitTransactionForm(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-exchange-alt"></i>
+                                نوع الحركة
+                            </label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="transactionType" value="قبض" checked>
+                                    <span>💰 قبض (إيراد)</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="transactionType" value="دفع">
+                                    <span>💸 دفع (مصروف)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-money-bill"></i>
+                                المبلغ
+                            </label>
+                            <input type="number" id="transactionAmount" class="form-control" required min="1" placeholder="أدخل المبلغ">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-tag"></i>
+                                التصنيف
+                            </label>
+                            <select id="transactionCategory" class="form-control">
+                                <option value="إيجار">🚗 إيجار</option>
+                                <option value="صيانة">🔧 صيانة</option>
+                                <option value="تنظيف">🧹 تنظيف</option>
+                                <option value="وقود">⛽ وقود</option>
+                                <option value="غرامة">⚠️ غرامة</option>
+                                <option value="أخرى">📌 أخرى</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-car"></i>
+                                السيارة (اختياري)
+                            </label>
+                            <select id="transactionCar" class="form-control">
+                                <option value="">اختر سيارة</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-user"></i>
+                                العميل (اختياري)
+                            </label>
+                            <input type="text" id="transactionCustomer" class="form-control" placeholder="اسم العميل">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-sticky-note"></i>
+                            الوصف
+                        </label>
+                        <textarea id="transactionDescription" class="form-control" rows="3" required placeholder="وصف الحركة المالية..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions" style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addTransactionModal')">
+                            <i class="fas fa-times"></i>
+                            إلغاء
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i>
+                            إضافة الحركة
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL: تفاصيل السيارة ========== -->
+    <div id="carDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalCarTitle">
+                    <i class="fas fa-car"></i>
+                    تفاصيل السيارة
+                </h3>
+                <button class="close-btn" onclick="closeModal('carDetailsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="carDetailsContent">
+                <div class="loading">
+                    <i class="fas fa-circle-notch fa-spin"></i>
+                    <p>جاري تحميل التفاصيل...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL: التقرير المالي للسيارة ========== -->
+    <div id="carFinancialModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>
+                    <i class="fas fa-chart-line"></i>
+                    التقرير المالي للسيارة
+                </h3>
+                <button class="close-btn" onclick="closeModal('carFinancialModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- اختيار السيارة -->
+                <div class="form-group" style="margin-bottom: 30px;">
+                    <label>
+                        <i class="fas fa-car"></i>
+                        اختر السيارة
+                    </label>
+                    <select id="carFinancialSelect" class="form-control" onchange="loadCarFinancialReport()">
+                        <option value="">-- اختر سيارة --</option>
+                    </select>
+                </div>
+
+                <!-- فلتر التاريخ -->
+                <div id="carDateFilterSection" style="display: none; margin-bottom: 30px;">
+                    <div class="date-filter glass-light" style="display: flex; gap: 12px; padding: 16px; flex-wrap: wrap; align-items: center;">
+                        <label style="color: #cbd5e1; font-weight: 600; min-width: 100px;">
+                            <i class="fas fa-calendar-alt"></i> فترة التقرير:
+                        </label>
+                        <input type="date" id="carStartDate" class="form-control" style="flex: 1; min-width: 150px;">
+                        <span style="color: var(--text-secondary);">إلى</span>
+                        <input type="date" id="carEndDate" class="form-control" style="flex: 1; min-width: 150px;">
+                        <button class="btn btn-sm btn-primary" onclick="applyCarDateFilter()" style="min-width: 100px;">
+                            <i class="fas fa-filter"></i>
+                            تطبيق
+                        </button>
+                        <button class="btn btn-sm btn-secondary" onclick="clearCarDateFilter()" style="min-width: 100px;">
+                            <i class="fas fa-times"></i>
+                            إلغاء الفلتر
+                        </button>
+                    </div>
+                </div>
+
+                <!-- محتوى التقرير -->
+                <div id="carFinancialReportContent">
+                    <div style="text-align: center; padding: 60px; color: #94a3b8;">
+                        <i class="fas fa-car-side" style="font-size: 4rem; opacity: 0.3; margin-bottom: 20px;"></i>
+                        <p style="font-size: 1.1rem;">اختر سيارة لعرض التقرير المالي المفصّل</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SCRIPTS ========== -->
+    <script src="script.js"></script>
+    
+    <script>
+        // تحديث التاريخ والوقت
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            const dateTimeElement = document.getElementById('dateTimeDisplay');
+            if (dateTimeElement) {
+                dateTimeElement.textContent = now.toLocaleDateString('ar-SA', options);
+            }
+        }
+        
+        // تحديث كل ثانية
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+        
+        // إغلاق المودالات عند الضغط خارجها
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

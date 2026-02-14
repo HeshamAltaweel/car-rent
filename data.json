@@ -1,0 +1,47 @@
+{
+  "cars": [
+    {
+      "id": 1771030838283,
+      "name": "mercedes",
+      "plate": "110535",
+      "type": "سيدان",
+      "color": "أسود",
+      "year": 2010,
+      "mileage": 158648,
+      "features": [
+        "مكيف"
+      ],
+      "available": true,
+      "pricePerDay": 50000,
+      "pricePerHour": 5000,
+      "totalRevenue": 0
+    }
+  ],
+  "transactions": [
+    {
+      "id": 1771031741487,
+      "type": "دفع",
+      "amount": 10000,
+      "carId": "1771030838283",
+      "carName": "mercedes",
+      "customerName": "ahmad",
+      "description": "دين على احمد",
+      "category": "أخرى",
+      "date": "2026-02-14",
+      "time": "04:15"
+    },
+    {
+      "id": 1771032575039,
+      "type": "قبض",
+      "amount": 10000,
+      "carId": "1771030838283",
+      "carName": "mercedes",
+      "customerName": "ahmad",
+      "description": "دين (وفاء)",
+      "category": "أخرى",
+      "date": "2026-02-14",
+      "time": "04:29"
+    }
+  ],
+  "bookingsHistory": []
+}
